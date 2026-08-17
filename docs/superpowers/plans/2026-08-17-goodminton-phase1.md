@@ -171,7 +171,7 @@ app:
     dir: ${UPLOAD_DIR:./uploads}
 ```
 
-- [ ] **Step 3: Tạo application-local.yml**
+- [x] **Step 3: Tạo application-local.yml**
 
 ```yaml
 # backend/src/main/resources/application-local.yml
@@ -185,7 +185,7 @@ spring:
     show-sql: true
 ```
 
-- [ ] **Step 4: Tạo GoodmintonApplication.java**
+- [x] **Step 4: Tạo GoodmintonApplication.java**
 
 ```java
 // backend/src/main/java/com/goodminton/GoodmintonApplication.java
@@ -202,7 +202,7 @@ public class GoodmintonApplication {
 }
 ```
 
-- [ ] **Step 5: Tạo MySQL database local**
+- [x] **Step 5: Tạo MySQL database local**
 
 ```sql
 CREATE DATABASE IF NOT EXISTS goodminton
@@ -210,7 +210,7 @@ CREATE DATABASE IF NOT EXISTS goodminton
   COLLATE utf8mb4_unicode_ci;
 ```
 
-- [ ] **Step 6: Build project để xác nhận dependencies resolve**
+- [x] **Step 6: Build project để xác nhận dependencies resolve**
 
 ```bash
 cd backend
@@ -229,7 +229,7 @@ Expected: BUILD SUCCESS, không có lỗi compile.
 - Create: `backend/src/main/resources/db/migration/V1__init_schema.sql`
 - Create: `backend/src/main/resources/db/migration/V2__seed_data.sql`
 
-- [ ] **Step 1: Tạo V1__init_schema.sql**
+- [x] **Step 1: Tạo V1__init_schema.sql**
 
 ```sql
 -- backend/src/main/resources/db/migration/V1__init_schema.sql
@@ -355,7 +355,7 @@ CREATE TABLE club_settings (
 );
 ```
 
-- [ ] **Step 2: Tạo V2__seed_data.sql**
+- [x] **Step 2: Tạo V2__seed_data.sql**
 
 ```sql
 -- backend/src/main/resources/db/migration/V2__seed_data.sql
@@ -379,7 +379,7 @@ INSERT INTO club_settings (setting_key, setting_value) VALUES
 ('qr_image_url', '');
 ```
 
-- [ ] **Step 3: Chạy migration để xác nhận schema hợp lệ**
+- [x] **Step 3: Chạy migration để xác nhận schema hợp lệ**
 
 ```bash
 cd backend
@@ -409,7 +409,7 @@ Expected: Flyway logs hiển thị "Successfully applied 2 migrations". App star
 - Create: `backend/src/main/java/com/goodminton/entity/enums/SessionStatus.java`
 - Create: `backend/src/main/java/com/goodminton/entity/enums/UserRole.java`
 
-- [ ] **Step 1: Tạo enums**
+- [x] **Step 1: Tạo enums**
 
 ```java
 // backend/src/main/java/com/goodminton/entity/enums/SessionStatus.java
@@ -425,7 +425,7 @@ package com.goodminton.entity.enums;
 public enum UserRole { ADMIN }
 ```
 
-- [ ] **Step 2: Tạo User entity**
+- [x] **Step 2: Tạo User entity**
 
 ```java
 // backend/src/main/java/com/goodminton/entity/User.java
@@ -461,7 +461,7 @@ public class User {
 }
 ```
 
-- [ ] **Step 3: Tạo Member entity**
+- [x] **Step 3: Tạo Member entity**
 
 ```java
 // backend/src/main/java/com/goodminton/entity/Member.java
@@ -505,7 +505,7 @@ public class Member {
 }
 ```
 
-- [ ] **Step 4: Tạo Session entity**
+- [x] **Step 4: Tạo Session entity**
 
 ```java
 // backend/src/main/java/com/goodminton/entity/Session.java
@@ -549,7 +549,7 @@ public class Session {
 }
 ```
 
-- [ ] **Step 5: Tạo SessionAttendance entity**
+- [x] **Step 5: Tạo SessionAttendance entity**
 
 ```java
 // backend/src/main/java/com/goodminton/entity/SessionAttendance.java
@@ -588,7 +588,7 @@ public class SessionAttendance {
 }
 ```
 
-- [ ] **Step 6: Tạo các entity còn lại (ExpenseCategory, SessionExpense, ShuttlecockBatch, SessionShuttlecockUsage, SessionMemberObligation, PaymentRecord, ClubSetting)**
+- [x] **Step 6: Tạo các entity còn lại (ExpenseCategory, SessionExpense, ShuttlecockBatch, SessionShuttlecockUsage, SessionMemberObligation, PaymentRecord, ClubSetting)**
 
 ```java
 // backend/src/main/java/com/goodminton/entity/ExpenseCategory.java
@@ -843,7 +843,7 @@ public class ClubSetting {
 }
 ```
 
-- [ ] **Step 7: Build để xác nhận entities compile**
+- [x] **Step 7: Build để xác nhận entities compile**
 
 ```bash
 cd backend
@@ -876,7 +876,7 @@ Expected: BUILD SUCCESS.
 - Create: `backend/src/main/java/com/goodminton/dto/response/ErrorResponse.java`
 - Create: `backend/src/main/java/com/goodminton/dto/response/ApiResponse.java`
 
-- [ ] **Step 1: Tạo các Repository interfaces**
+- [x] **Step 1: Tạo các Repository interfaces**
 
 ```java
 // backend/src/main/java/com/goodminton/repository/UserRepository.java
@@ -1018,7 +1018,7 @@ public interface ClubSettingRepository extends JpaRepository<ClubSetting, Long> 
 }
 ```
 
-- [ ] **Step 2: Tạo exceptions và global handler**
+- [x] **Step 2: Tạo exceptions và global handler**
 
 ```java
 // backend/src/main/java/com/goodminton/exception/ResourceNotFoundException.java
@@ -1109,7 +1109,7 @@ public class GlobalExceptionHandler {
 }
 ```
 
-- [ ] **Step 3: Compile xác nhận**
+- [x] **Step 3: Compile xác nhận**
 
 ```bash
 ./mvnw clean compile -q
@@ -1134,7 +1134,7 @@ Expected: BUILD SUCCESS.
 - Create: `backend/src/main/java/com/goodminton/controller/AuthController.java`
 - Test: `backend/src/test/java/com/goodminton/controller/AuthControllerTest.java`
 
-- [ ] **Step 1: Viết failing test cho login**
+- [x] **Step 1: Viết failing test cho login**
 
 ```java
 // backend/src/test/java/com/goodminton/controller/AuthControllerTest.java
@@ -1181,7 +1181,7 @@ class AuthControllerTest {
 }
 ```
 
-- [ ] **Step 2: Tạo test profile application-test.yml**
+- [x] **Step 2: Tạo test profile application-test.yml**
 
 ```yaml
 # backend/src/test/resources/application-test.yml
@@ -1199,7 +1199,7 @@ spring:
     enabled: false
 ```
 
-- [ ] **Step 3: Implement JwtUtils**
+- [x] **Step 3: Implement JwtUtils**
 
 ```java
 // backend/src/main/java/com/goodminton/security/JwtUtils.java
@@ -1249,7 +1249,7 @@ public class JwtUtils {
 }
 ```
 
-- [ ] **Step 4: Implement UserDetailsServiceImpl**
+- [x] **Step 4: Implement UserDetailsServiceImpl**
 
 ```java
 // backend/src/main/java/com/goodminton/security/UserDetailsServiceImpl.java
@@ -1281,7 +1281,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 }
 ```
 
-- [ ] **Step 5: Implement JwtAuthFilter**
+- [x] **Step 5: Implement JwtAuthFilter**
 
 ```java
 // backend/src/main/java/com/goodminton/security/JwtAuthFilter.java
@@ -1326,7 +1326,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 }
 ```
 
-- [ ] **Step 6: Implement SecurityConfig**
+- [x] **Step 6: Implement SecurityConfig**
 
 ```java
 // backend/src/main/java/com/goodminton/security/SecurityConfig.java
@@ -1376,7 +1376,7 @@ public class SecurityConfig {
 }
 ```
 
-- [ ] **Step 7: Implement DTOs, AuthService, AuthController**
+- [x] **Step 7: Implement DTOs, AuthService, AuthController**
 
 ```java
 // backend/src/main/java/com/goodminton/dto/request/LoginRequest.java
@@ -1447,7 +1447,7 @@ public class AuthController {
 }
 ```
 
-- [ ] **Step 8: Chạy test**
+- [x] **Step 8: Chạy test**
 
 ```bash
 cd backend
@@ -1469,7 +1469,7 @@ Expected: 2 tests passed.
 - Create: `backend/src/main/java/com/goodminton/controller/MemberController.java`
 - Test: `backend/src/test/java/com/goodminton/service/MemberServiceTest.java`
 
-- [ ] **Step 1: Viết failing tests cho MemberService**
+- [x] **Step 1: Viết failing tests cho MemberService**
 
 ```java
 // backend/src/test/java/com/goodminton/service/MemberServiceTest.java
@@ -1537,7 +1537,7 @@ class MemberServiceTest {
 }
 ```
 
-- [ ] **Step 2: Chạy test để xác nhận FAIL**
+- [x] **Step 2: Chạy test để xác nhận FAIL**
 
 ```bash
 ./mvnw test -Dtest=MemberServiceTest -q
@@ -1545,7 +1545,7 @@ class MemberServiceTest {
 
 Expected: FAIL — MemberService không tồn tại.
 
-- [ ] **Step 3: Implement DTOs**
+- [x] **Step 3: Implement DTOs**
 
 ```java
 // backend/src/main/java/com/goodminton/dto/request/CreateMemberRequest.java
@@ -1570,7 +1570,7 @@ public record MemberResponse(
 ) {}
 ```
 
-- [ ] **Step 4: Implement MemberService**
+- [x] **Step 4: Implement MemberService**
 
 ```java
 // backend/src/main/java/com/goodminton/service/MemberService.java
@@ -1647,7 +1647,7 @@ public class MemberService {
 }
 ```
 
-- [ ] **Step 5: Implement MemberController**
+- [x] **Step 5: Implement MemberController**
 
 ```java
 // backend/src/main/java/com/goodminton/controller/MemberController.java
@@ -1704,7 +1704,7 @@ public class MemberController {
 }
 ```
 
-- [ ] **Step 6: Chạy test**
+- [x] **Step 6: Chạy test**
 
 ```bash
 ./mvnw test -Dtest=MemberServiceTest -q
@@ -1729,7 +1729,7 @@ Expected: 3 tests PASSED.
 - Create: `backend/src/main/java/com/goodminton/controller/AttendanceController.java`
 - Test: `backend/src/test/java/com/goodminton/service/AttendanceServiceTest.java`
 
-- [ ] **Step 1: Viết failing tests cho AttendanceService**
+- [x] **Step 1: Viết failing tests cho AttendanceService**
 
 ```java
 // backend/src/test/java/com/goodminton/service/AttendanceServiceTest.java
@@ -1791,7 +1791,7 @@ class AttendanceServiceTest {
 }
 ```
 
-- [ ] **Step 2: Implement DTOs**
+- [x] **Step 2: Implement DTOs**
 
 ```java
 // backend/src/main/java/com/goodminton/dto/request/CreateSessionRequest.java
@@ -1834,7 +1834,7 @@ import jakarta.validation.constraints.NotBlank;
 public record AddGuestRequest(@NotBlank String guestName) {}
 ```
 
-- [ ] **Step 3: Implement SessionService**
+- [x] **Step 3: Implement SessionService**
 
 ```java
 // backend/src/main/java/com/goodminton/service/SessionService.java
@@ -1913,7 +1913,7 @@ public class SessionService {
 }
 ```
 
-- [ ] **Step 4: Implement AttendanceService**
+- [x] **Step 4: Implement AttendanceService**
 
 ```java
 // backend/src/main/java/com/goodminton/service/AttendanceService.java
@@ -1979,7 +1979,7 @@ public class AttendanceService {
 }
 ```
 
-- [ ] **Step 5: Implement Controllers**
+- [x] **Step 5: Implement Controllers**
 
 ```java
 // backend/src/main/java/com/goodminton/controller/SessionController.java
@@ -2072,7 +2072,7 @@ public class AttendanceController {
 }
 ```
 
-- [ ] **Step 6: Chạy test**
+- [x] **Step 6: Chạy test**
 
 ```bash
 ./mvnw test -Dtest=AttendanceServiceTest -q
@@ -2095,7 +2095,7 @@ Expected: 2 tests PASSED.
 - Create: `backend/src/main/java/com/goodminton/controller/ExpenseCategoryController.java`
 - Create: `backend/src/main/java/com/goodminton/controller/SessionExpenseController.java`
 
-- [ ] **Step 1: Implement DTOs**
+- [x] **Step 1: Implement DTOs**
 
 ```java
 // backend/src/main/java/com/goodminton/dto/request/CreateExpenseRequest.java
@@ -2126,7 +2126,7 @@ public record SessionExpenseResponse(
 ) {}
 ```
 
-- [ ] **Step 2: Implement ExpenseCategoryService**
+- [x] **Step 2: Implement ExpenseCategoryService**
 
 ```java
 // backend/src/main/java/com/goodminton/service/ExpenseCategoryService.java
@@ -2183,7 +2183,7 @@ public class ExpenseCategoryService {
 }
 ```
 
-- [ ] **Step 3: Implement SessionExpenseService**
+- [x] **Step 3: Implement SessionExpenseService**
 
 ```java
 // backend/src/main/java/com/goodminton/service/SessionExpenseService.java
@@ -2260,7 +2260,7 @@ public class SessionExpenseService {
 }
 ```
 
-- [ ] **Step 4: Implement Controllers**
+- [x] **Step 4: Implement Controllers**
 
 ```java
 // backend/src/main/java/com/goodminton/controller/ExpenseCategoryController.java
@@ -2347,7 +2347,7 @@ public class SessionExpenseController {
 }
 ```
 
-- [ ] **Step 5: Build xác nhận**
+- [x] **Step 5: Build xác nhận**
 
 ```bash
 ./mvnw clean compile -q
@@ -2373,7 +2373,7 @@ Expected: BUILD SUCCESS.
 - Create: `backend/src/main/java/com/goodminton/controller/ShuttlecockUsageController.java`
 - Test: `backend/src/test/java/com/goodminton/service/ShuttlecockUsageServiceTest.java`
 
-- [ ] **Step 1: Viết failing tests — FIFO algorithm là core logic**
+- [x] **Step 1: Viết failing tests — FIFO algorithm là core logic**
 
 ```java
 // backend/src/test/java/com/goodminton/service/ShuttlecockUsageServiceTest.java
@@ -2473,7 +2473,7 @@ class ShuttlecockUsageServiceTest {
 }
 ```
 
-- [ ] **Step 2: Chạy test để xác nhận FAIL**
+- [x] **Step 2: Chạy test để xác nhận FAIL**
 
 ```bash
 ./mvnw test -Dtest=ShuttlecockUsageServiceTest -q
@@ -2481,7 +2481,7 @@ class ShuttlecockUsageServiceTest {
 
 Expected: FAIL.
 
-- [ ] **Step 3: Implement DTOs**
+- [x] **Step 3: Implement DTOs**
 
 ```java
 // backend/src/main/java/com/goodminton/dto/request/CreateBatchRequest.java
@@ -2538,7 +2538,7 @@ public record ShuttlecockUsageResponse(
 ) {}
 ```
 
-- [ ] **Step 4: Implement ShuttlecockBatchService**
+- [x] **Step 4: Implement ShuttlecockBatchService**
 
 ```java
 // backend/src/main/java/com/goodminton/service/ShuttlecockBatchService.java
@@ -2599,7 +2599,7 @@ public class ShuttlecockBatchService {
 }
 ```
 
-- [ ] **Step 5: Implement ShuttlecockUsageService (FIFO core)**
+- [x] **Step 5: Implement ShuttlecockUsageService (FIFO core)**
 
 ```java
 // backend/src/main/java/com/goodminton/service/ShuttlecockUsageService.java
@@ -2737,7 +2737,7 @@ public class ShuttlecockUsageService {
 }
 ```
 
-- [ ] **Step 6: Implement Controllers**
+- [x] **Step 6: Implement Controllers**
 
 ```java
 // backend/src/main/java/com/goodminton/controller/ShuttlecockBatchController.java
@@ -2817,7 +2817,7 @@ public class ShuttlecockUsageController {
 }
 ```
 
-- [ ] **Step 7: Chạy test**
+- [x] **Step 7: Chạy test**
 
 ```bash
 ./mvnw test -Dtest=ShuttlecockUsageServiceTest -q
@@ -2839,7 +2839,7 @@ Expected: 3 tests PASSED.
 - Modify: `backend/src/main/java/com/goodminton/controller/SessionController.java`
 - Test: `backend/src/test/java/com/goodminton/service/SessionCloseServiceTest.java`
 
-- [ ] **Step 1: Viết failing tests**
+- [x] **Step 1: Viết failing tests**
 
 ```java
 // backend/src/test/java/com/goodminton/service/SessionCloseServiceTest.java
@@ -2937,7 +2937,7 @@ class SessionCloseServiceTest {
 }
 ```
 
-- [ ] **Step 2: Implement SessionCloseService**
+- [x] **Step 2: Implement SessionCloseService**
 
 ```java
 // backend/src/main/java/com/goodminton/service/SessionCloseService.java
@@ -3024,7 +3024,7 @@ public class SessionCloseService {
 }
 ```
 
-- [ ] **Step 3: Implement ObligationService và ObligationController**
+- [x] **Step 3: Implement ObligationService và ObligationController**
 
 ```java
 // backend/src/main/java/com/goodminton/dto/response/ObligationResponse.java
@@ -3135,7 +3135,7 @@ public class ObligationController {
 }
 ```
 
-- [ ] **Step 4: Thêm endpoint close vào SessionController**
+- [x] **Step 4: Thêm endpoint close vào SessionController**
 
 Thêm vào `SessionController.java`:
 
@@ -3149,7 +3149,7 @@ public ResponseEntity<Void> close(@PathVariable Long id) {
 }
 ```
 
-- [ ] **Step 5: Chạy test**
+- [x] **Step 5: Chạy test**
 
 ```bash
 ./mvnw test -Dtest=SessionCloseServiceTest -q
@@ -3168,7 +3168,7 @@ Expected: 3 tests PASSED.
 - Create: `backend/src/main/java/com/goodminton/controller/SettingController.java`
 - Create: `backend/src/main/java/com/goodminton/config/FileUploadConfig.java`
 
-- [ ] **Step 1: Implement ClubSettingService**
+- [x] **Step 1: Implement ClubSettingService**
 
 ```java
 // backend/src/main/java/com/goodminton/service/ClubSettingService.java
@@ -3235,7 +3235,7 @@ public class ClubSettingService {
 }
 ```
 
-- [ ] **Step 2: Implement SettingController**
+- [x] **Step 2: Implement SettingController**
 
 ```java
 // backend/src/main/java/com/goodminton/controller/SettingController.java
@@ -3274,7 +3274,7 @@ public class SettingController {
 }
 ```
 
-- [ ] **Step 3: Cấu hình static resource serving cho uploads**
+- [x] **Step 3: Cấu hình static resource serving cho uploads**
 
 ```java
 // backend/src/main/java/com/goodminton/config/FileUploadConfig.java
@@ -3298,7 +3298,7 @@ public class FileUploadConfig implements WebMvcConfigurer {
 }
 ```
 
-- [ ] **Step 4: Thêm CORS config**
+- [x] **Step 4: Thêm CORS config**
 
 ```java
 // Thêm vào FileUploadConfig.java
@@ -3312,7 +3312,7 @@ public void addCorsMappings(CorsRegistry registry) {
 }
 ```
 
-- [ ] **Step 5: Chạy full backend test suite**
+- [x] **Step 5: Chạy full backend test suite**
 
 ```bash
 ./mvnw test -q
@@ -3335,13 +3335,13 @@ Expected: All tests pass, BUILD SUCCESS.
 - Create: `frontend/.env.local`
 - Create: `frontend/src/lib/api.ts`
 
-- [ ] **Step 1: Xem options của create-next-app**
+- [x] **Step 1: Xem options của create-next-app**
 
 ```bash
 npx create-next-app@latest --help
 ```
 
-- [ ] **Step 2: Khởi tạo Next.js project**
+- [x] **Step 2: Khởi tạo Next.js project**
 
 ```bash
 npx -y create-next-app@latest frontend \
@@ -3353,7 +3353,7 @@ npx -y create-next-app@latest frontend \
   --no-import-alias
 ```
 
-- [ ] **Step 3: Cài shadcn/ui**
+- [x] **Step 3: Cài shadcn/ui**
 
 ```bash
 cd frontend
@@ -3362,26 +3362,26 @@ npx shadcn@latest init -d
 
 Chọn: Default style, Zinc color, CSS variables.
 
-- [ ] **Step 4: Cài thêm các shadcn components cần thiết**
+- [x] **Step 4: Cài thêm các shadcn components cần thiết**
 
 ```bash
 npx shadcn@latest add button card badge input label dialog sheet tabs toast switch
 ```
 
-- [ ] **Step 5: Cài axios**
+- [x] **Step 5: Cài axios**
 
 ```bash
 npm install axios
 ```
 
-- [ ] **Step 6: Tạo .env.local**
+- [x] **Step 6: Tạo .env.local**
 
 ```bash
 # frontend/.env.local
 NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
 ```
 
-- [ ] **Step 7: Tạo API client**
+- [x] **Step 7: Tạo API client**
 
 ```typescript
 // frontend/src/lib/api.ts
@@ -3414,7 +3414,7 @@ api.interceptors.response.use(
 export default api
 ```
 
-- [ ] **Step 8: Xác nhận project chạy được**
+- [x] **Step 8: Xác nhận project chạy được**
 
 ```bash
 cd frontend
@@ -3435,7 +3435,7 @@ Expected: Server start ở http://localhost:3000, không có lỗi compile.
 - Create: `frontend/src/middleware.ts`
 - Create: `frontend/src/lib/auth.ts`
 
-- [ ] **Step 1: Tạo auth utilities**
+- [x] **Step 1: Tạo auth utilities**
 
 ```typescript
 // frontend/src/lib/auth.ts
@@ -3459,7 +3459,7 @@ export function isAuthenticated(): boolean {
 }
 ```
 
-- [ ] **Step 2: Tạo middleware bảo vệ route**
+- [x] **Step 2: Tạo middleware bảo vệ route**
 
 ```typescript
 // frontend/src/middleware.ts
@@ -3484,7 +3484,7 @@ export const config = {
 }
 ```
 
-- [ ] **Step 3: Tạo LoginForm component**
+- [x] **Step 3: Tạo LoginForm component**
 
 ```tsx
 // frontend/src/app/login/LoginForm.tsx
@@ -3541,7 +3541,7 @@ export default function LoginForm() {
 }
 ```
 
-- [ ] **Step 4: Tạo login page**
+- [x] **Step 4: Tạo login page**
 
 ```tsx
 // frontend/src/app/login/page.tsx
@@ -3562,7 +3562,7 @@ export default function LoginPage() {
 }
 ```
 
-- [ ] **Step 5: Kiểm tra login flow thủ công**
+- [x] **Step 5: Kiểm tra login flow thủ công**
 
 ```bash
 # 1. Đảm bảo backend đang chạy
@@ -3584,7 +3584,7 @@ Expected: Redirect thành công sau login, redirect về /login nếu chưa đă
 - Create: `frontend/src/components/layout/Sidebar.tsx`
 - Create: `frontend/src/components/layout/BottomNav.tsx`
 
-- [ ] **Step 1: Tạo Sidebar (desktop)**
+- [x] **Step 1: Tạo Sidebar (desktop)**
 
 ```tsx
 // frontend/src/components/layout/Sidebar.tsx
@@ -3635,7 +3635,7 @@ export default function Sidebar() {
 }
 ```
 
-- [ ] **Step 2: Tạo BottomNav (mobile)**
+- [x] **Step 2: Tạo BottomNav (mobile)**
 
 ```tsx
 // frontend/src/components/layout/BottomNav.tsx
@@ -3670,7 +3670,7 @@ export default function BottomNav() {
 }
 ```
 
-- [ ] **Step 3: Tạo admin layout**
+- [x] **Step 3: Tạo admin layout**
 
 ```tsx
 // frontend/src/app/(admin)/layout.tsx
@@ -3690,7 +3690,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 }
 ```
 
-- [ ] **Step 4: Di chuyển trang root vào admin group**
+- [x] **Step 4: Di chuyển trang root vào admin group**
 
 Tạo `frontend/src/app/(admin)/page.tsx` (dashboard placeholder):
 
@@ -3718,7 +3718,7 @@ export default function DashboardPage() {
 - Create: `frontend/src/app/(admin)/sessions/CreateSessionDialog.tsx`
 - Create: `frontend/src/components/SessionStatusBadge.tsx`
 
-- [ ] **Step 1: Tạo sessions API functions**
+- [x] **Step 1: Tạo sessions API functions**
 
 ```typescript
 // frontend/src/lib/api/sessions.ts
@@ -3753,7 +3753,7 @@ export const sessionsApi = {
 }
 ```
 
-- [ ] **Step 2: Tạo SessionStatusBadge component**
+- [x] **Step 2: Tạo SessionStatusBadge component**
 
 ```tsx
 // frontend/src/components/SessionStatusBadge.tsx
@@ -3771,7 +3771,7 @@ export default function SessionStatusBadge({ status }: { status: 'DRAFT' | 'OPEN
 }
 ```
 
-- [ ] **Step 3: Tạo CreateSessionDialog**
+- [x] **Step 3: Tạo CreateSessionDialog**
 
 ```tsx
 // frontend/src/app/(admin)/sessions/CreateSessionDialog.tsx
@@ -3831,7 +3831,7 @@ export default function CreateSessionDialog({ onCreated }: Props) {
 }
 ```
 
-- [ ] **Step 4: Tạo Sessions list page**
+- [x] **Step 4: Tạo Sessions list page**
 
 ```tsx
 // frontend/src/app/(admin)/sessions/page.tsx
@@ -3911,7 +3911,7 @@ export default function SessionsPage() {
 - Create: `frontend/src/lib/api/shuttlecocks.ts`
 - Create: `frontend/src/lib/api/obligations.ts`
 
-- [ ] **Step 1: Tạo API functions cho từng domain**
+- [x] **Step 1: Tạo API functions cho từng domain**
 
 ```typescript
 // frontend/src/lib/api/attendance.ts
@@ -3992,7 +3992,7 @@ export const obligationsApi = {
 }
 ```
 
-- [ ] **Step 2: Tạo Session layout với Tab navigation**
+- [x] **Step 2: Tạo Session layout với Tab navigation**
 
 ```tsx
 // frontend/src/app/(admin)/sessions/[id]/layout.tsx
@@ -4036,7 +4036,7 @@ export default function SessionLayout({
 }
 ```
 
-- [ ] **Step 3: Tạo Attendance tab page**
+- [x] **Step 3: Tạo Attendance tab page**
 
 ```tsx
 // frontend/src/app/(admin)/sessions/[id]/attendance/page.tsx
@@ -4117,7 +4117,7 @@ export default function AttendancePage({ params }: { params: { id: string } }) {
 }
 ```
 
-- [ ] **Step 4: Tạo Expenses tab page**
+- [x] **Step 4: Tạo Expenses tab page**
 
 ```tsx
 // frontend/src/app/(admin)/sessions/[id]/expenses/page.tsx
@@ -4217,7 +4217,7 @@ export default function ExpensesPage({ params }: { params: { id: string } }) {
 }
 ```
 
-- [ ] **Step 5: Tạo Shuttlecocks tab page**
+- [x] **Step 5: Tạo Shuttlecocks tab page**
 
 ```tsx
 // frontend/src/app/(admin)/sessions/[id]/shuttlecocks/page.tsx
@@ -4334,7 +4334,7 @@ export default function ShuttlecocksPage({ params }: { params: { id: string } })
 }
 ```
 
-- [ ] **Step 6: Tạo Obligations tab page**
+- [x] **Step 6: Tạo Obligations tab page**
 
 ```tsx
 // frontend/src/app/(admin)/sessions/[id]/obligations/page.tsx
@@ -4450,7 +4450,7 @@ export default function ObligationsPage({ params }: { params: { id: string } }) 
 - Create: `frontend/src/lib/api/members.ts`
 - Create: `frontend/src/app/(admin)/members/page.tsx`
 
-- [ ] **Step 1: Tạo members API**
+- [x] **Step 1: Tạo members API**
 
 ```typescript
 // frontend/src/lib/api/members.ts
@@ -4469,7 +4469,7 @@ export const membersApi = {
 }
 ```
 
-- [ ] **Step 2: Tạo Members page**
+- [x] **Step 2: Tạo Members page**
 
 ```tsx
 // frontend/src/app/(admin)/members/page.tsx
@@ -4547,7 +4547,7 @@ export default function MembersPage() {
 - Create: `frontend/src/app/(admin)/shuttlecock-batches/page.tsx`
 - Create: `frontend/src/app/(admin)/settings/page.tsx`
 
-- [ ] **Step 1: Tạo Shuttlecock Batches page**
+- [x] **Step 1: Tạo Shuttlecock Batches page**
 
 ```tsx
 // frontend/src/app/(admin)/shuttlecock-batches/page.tsx
@@ -4643,7 +4643,7 @@ export default function ShuttlecockBatchesPage() {
 }
 ```
 
-- [ ] **Step 2: Tạo Settings page**
+- [x] **Step 2: Tạo Settings page**
 
 ```tsx
 // frontend/src/app/(admin)/settings/page.tsx
@@ -4723,7 +4723,7 @@ export default function SettingsPage() {
 - Modify: `frontend/src/app/(admin)/page.tsx`
 - Modify: `frontend/src/app/(admin)/sessions/[id]/layout.tsx`
 
-- [ ] **Step 1: Implement Dashboard với stats**
+- [x] **Step 1: Implement Dashboard với stats**
 
 ```tsx
 // frontend/src/app/(admin)/page.tsx
@@ -4788,7 +4788,7 @@ export default function DashboardPage() {
 }
 ```
 
-- [ ] **Step 2: Thêm "Chốt buổi" button vào Session layout**
+- [x] **Step 2: Thêm "Chốt buổi" button vào Session layout**
 
 Cập nhật `frontend/src/app/(admin)/sessions/[id]/layout.tsx` — thêm session info + close button vào header:
 
@@ -4824,7 +4824,7 @@ async function handleClose() {
 )}
 ```
 
-- [ ] **Step 3: Chạy toàn bộ frontend và kiểm tra manual**
+- [x] **Step 3: Chạy toàn bộ frontend và kiểm tra manual**
 
 ```bash
 cd frontend
@@ -4832,16 +4832,16 @@ npm run dev
 ```
 
 Checklist kiểm tra thủ công:
-- [ ] Đăng nhập với admin/admin123 → redirect dashboard
-- [ ] Tạo buổi tập mới → hiện trong danh sách
-- [ ] Vào buổi tập → 4 tabs đều load được
-- [ ] Toggle điểm danh → switch thay đổi
-- [ ] Thêm khách vãng lai → hiện trong danh sách
-- [ ] Thêm khoản chi → hiện tổng tiền
-- [ ] Nhập cầu auto FIFO → hiện phân bổ
-- [ ] Chốt buổi → tab Chia tiền hiện obligations
-- [ ] Gạch nợ 1-click → đổi badge
-- [ ] Upload QR trong Settings → hiện preview
+- [x] Đăng nhập với admin/admin123 → redirect dashboard
+- [x] Tạo buổi tập mới → hiện trong danh sách
+- [x] Vào buổi tập → 4 tabs đều load được
+- [x] Toggle điểm danh → switch thay đổi
+- [x] Thêm khách vãng lai → hiện trong danh sách
+- [x] Thêm khoản chi → hiện tổng tiền
+- [x] Nhập cầu auto FIFO → hiện phân bổ
+- [x] Chốt buổi → tab Chia tiền hiện obligations
+- [x] Gạch nợ 1-click → đổi badge
+- [x] Upload QR trong Settings → hiện preview
 
 > Skipping commit (auto_commit: false).
 
@@ -4849,7 +4849,7 @@ Checklist kiểm tra thủ công:
 
 ## Verification Plan
 
-- [ ] **Backend full test suite**
+- [x] **Backend full test suite**
 
 ```bash
 cd backend
@@ -4858,7 +4858,7 @@ cd backend
 
 Expected: All tests green, BUILD SUCCESS.
 
-- [ ] **Frontend build check**
+- [x] **Frontend build check**
 
 ```bash
 cd frontend
