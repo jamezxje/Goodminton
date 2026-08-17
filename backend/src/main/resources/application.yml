@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: goodminton-backend
+  profiles:
+    active: local
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:goodminton-super-secret-key-change-in-production-min-256-bits}
+    expiration-ms: 86400000   # 24 giờ
+    refresh-expiration-ms: 604800000  # 7 ngày
+
+  upload:
+    dir: ${UPLOAD_DIR:./uploads}
