@@ -1,0 +1,55 @@
+# ===========================
+# Backend (Spring Boot / Java)
+# ===========================
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/*.log
+backend/uploads/
+*.class
+*.jar
+*.war
+*.ear
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ===========================
+# Frontend (Next.js)
+# ===========================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+
+# ===========================
+# Environment & Secrets
+# ===========================
+.env
+.env.local
+.env.*.local
+application-local.yml
+application-prod.yml
+
+# ===========================
+# IDE & OS
+# ===========================
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ===========================
+# Superpowers / Agent
+# ===========================
+.superpowers/
+
+# ===========================
+# Logs & Temp
+# ===========================
+*.log
+logs/
+tmp/
