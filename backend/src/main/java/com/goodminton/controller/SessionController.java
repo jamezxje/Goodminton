@@ -2,6 +2,7 @@ package com.goodminton.controller;
 
 import com.goodminton.dto.request.CreateSessionRequest;
 import com.goodminton.dto.response.*;
+import com.goodminton.service.SessionCloseService;
 import com.goodminton.service.SessionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.List;
 public class SessionController {
 
     private final SessionService sessionService;
+    private final SessionCloseService sessionCloseService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<SessionResponse>>> getSessions(
@@ -39,5 +41,11 @@ public class SessionController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<SessionResponse>> getOne(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok(sessionService.getSession(id)));
+    }
+
+    @PatchMapping("/{id}/close")
+    public ResponseEntity<Void> close(@PathVariable Long id) {
+        sessionCloseService.closeSession(id);
+        return ResponseEntity.noContent().build();
     }
 }
