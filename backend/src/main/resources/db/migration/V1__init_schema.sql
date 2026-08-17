@@ -35,11 +35,7 @@ CREATE TABLE session_attendances (
     is_checked_in BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_attendance_session FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
-    CONSTRAINT fk_attendance_member FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE SET NULL,
-    CONSTRAINT chk_attendance_person CHECK (
-        (member_id IS NOT NULL AND guest_name IS NULL) OR
-        (member_id IS NULL AND guest_name IS NOT NULL)
-    )
+    CONSTRAINT fk_attendance_member FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE SET NULL
 );
 
 CREATE TABLE expense_categories (
