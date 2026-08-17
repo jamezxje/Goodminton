@@ -24,7 +24,7 @@
 - Create: `backend/src/main/resources/application-local.yml`
 - Create: `backend/src/main/java/com/goodminton/GoodmintonApplication.java`
 
-- [ ] **Step 1: Tạo Spring Boot project với pom.xml**
+- [x] **Step 1: Tạo Spring Boot project với pom.xml**
 
 ```xml
 <!-- backend/pom.xml -->
@@ -137,7 +137,7 @@
 </project>
 ```
 
-- [ ] **Step 2: Tạo application.yml (chứa cấu hình chung)**
+- [x] **Step 2: Tạo application.yml (chứa cấu hình chung)**
 
 ```yaml
 # backend/src/main/resources/application.yml
