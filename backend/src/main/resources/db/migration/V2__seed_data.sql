@@ -1,6 +1,6 @@
 -- Admin account: username=admin, password=admin123 (BCrypt hash)
 INSERT INTO users (username, password_hash, role)
-VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBpwTTyU3zvYWK', 'ADMIN');
+VALUES ('admin', '$2a$10$R825Bsgy1.GJHZilRnjpzOumwGuuCegJgvSltlGApeAmUfRfT5AXq', 'ADMIN');
 
 -- Default expense categories
 INSERT INTO expense_categories (name, icon, display_order) VALUES
