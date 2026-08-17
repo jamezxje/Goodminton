@@ -1,127 +1,152 @@
 'use client'
 
-import { useEffect, useState, use, useCallback } from 'react'
+import { useEffect, useState, use } from 'react'
 import { attendanceApi, Attendance } from '@/lib/api/attendance'
 
-export default function AttendancePage({ params }: { params: Promise<{ id: string }> }) {
+export default function AttendanceTab({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const sessionId = Number(id)
   const [attendances, setAttendances] = useState<Attendance[]>([])
-  const [loading, setLoading] = useState(true)
   const [guestName, setGuestName] = useState('')
-  const [addingGuest, setAddingGuest] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  const loadAttendances = useCallback(async () => {
-    try {
-      const data = await attendanceApi.getAll(sessionId)
-      setAttendances(data)
-    } catch {
-      setAttendances([])
-    } finally {
-      setLoading(false)
-    }
-  }, [sessionId])
+  function load() {
+    setLoading(true)
+    attendanceApi
+      .getAll(sessionId)
+      .then(setAttendances)
+      .catch(() => setAttendances([]))
+      .finally(() => setLoading(false))
+  }
 
   useEffect(() => {
-    loadAttendances()
-  }, [loadAttendances])
+    load()
+  }, [sessionId])
 
-  async function handleToggle(aId: number) {
-    try {
-      const updated = await attendanceApi.toggle(sessionId, aId)
-      setAttendances((prev) => prev.map((a) => (a.id === aId ? updated : a)))
-    } catch {
-      alert('Không thể thay đổi điểm danh!')
-    }
+  async function handleToggle(attId: number) {
+    await attendanceApi.toggle(sessionId, attId)
+    load()
   }
 
-  async function handleAddGuest() {
+  async function handleAddGuest(e: React.FormEvent) {
+    e.preventDefault()
     if (!guestName.trim()) return
-    setAddingGuest(true)
-    try {
-      await attendanceApi.addGuest(sessionId, guestName.trim())
-      setGuestName('')
-      loadAttendances()
-    } catch {
-      alert('Thêm khách vãng lai thất bại!')
-    } finally {
-      setAddingGuest(false)
-    }
+    await attendanceApi.addGuest(sessionId, guestName.trim())
+    setGuestName('')
+    load()
   }
 
-  async function handleDeleteGuest(aId: number) {
-    if (!confirm('Bạn có chắc muốn xóa khách vãng lai này?')) return
-    try {
-      await attendanceApi.deleteGuest(sessionId, aId)
-      loadAttendances()
-    } catch {
-      alert('Xóa khách thất bại!')
-    }
+  async function handleDelete(attId: number) {
+    if (!confirm('Bạn có chắc muốn xóa bản ghi điểm danh này?')) return
+    await attendanceApi.deleteGuest(sessionId, attId)
+    load()
   }
 
   const checkedInCount = attendances.filter((a) => a.isCheckedIn).length
 
-  if (loading) return <div className="text-center py-12 text-gray-400">Đang tải điểm danh...</div>
-
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between bg-white p-3.5 rounded-xl border">
-        <span className="text-sm font-medium text-gray-700">Có mặt:</span>
-        <span className="text-sm font-bold text-blue-600">
-          {checkedInCount} / {attendances.length} người
-        </span>
+    <div className="nextadmin-card p-5 space-y-6">
+      {/* Attendance Summary */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+        <div>
+          <h3 className="font-bold text-slate-900 text-sm">Điểm danh hội viên & khách</h3>
+          <p className="text-xs text-slate-500 mt-0.5">Bật/tắt switch để điểm danh thực tế người đi tập</p>
+        </div>
+        <div className="bg-white px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-800 shadow-sm">
+          <span>👥 Có mặt: </span>
+          <span className="text-[#3C50E0]">{checkedInCount}</span> / {attendances.length} người
+        </div>
       </div>
 
-      {/* Add guest input */}
-      <div className="flex gap-2">
+      {/* Add Guest Form */}
+      <form onSubmit={handleAddGuest} className="flex gap-2">
         <input
           type="text"
-          placeholder="Tên khách vãng lai..."
           value={guestName}
           onChange={(e) => setGuestName(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleAddGuest()}
-          className="flex-1 px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Thêm tên khách vãng lai..."
+          className="flex-1 border border-slate-200 rounded-xl px-3.5 py-2 text-xs md:text-sm bg-slate-50 outline-none focus:border-[#3C50E0] focus:bg-white transition-all"
         />
         <button
-          onClick={handleAddGuest}
-          disabled={addingGuest || !guestName.trim()}
-          className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white font-medium text-sm rounded-lg transition-colors disabled:opacity-50"
+          type="submit"
+          disabled={!guestName.trim()}
+          className="bg-[#3C50E0] hover:bg-[#3444B9] text-white font-semibold px-4 py-2 rounded-xl text-xs shadow-sm transition-all disabled:opacity-50"
         >
-          {addingGuest ? 'Đang thêm...' : '+ Thêm khách'}
+          + Thêm khách
         </button>
-      </div>
+      </form>
 
-      {/* Attendance list */}
-      <div className="space-y-2">
-        {attendances.map((a) => (
-          <div key={a.id} className="flex items-center justify-between bg-white rounded-xl border px-4 py-3">
-            <div>
-              <div className="font-medium text-gray-900">{a.memberName ?? a.guestName}</div>
-              {!a.memberName && <div className="text-xs text-amber-600 font-medium">Khách vãng lai</div>}
-            </div>
-            <div className="flex items-center gap-3">
-              {!a.memberName && (
-                <button
-                  onClick={() => handleDeleteGuest(a.id)}
-                  className="text-red-400 hover:text-red-600 text-sm px-1"
-                  title="Xóa khách"
-                >
-                  🗑
-                </button>
-              )}
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={a.isCheckedIn}
-                  onChange={() => handleToggle(a.id)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Attendance Table */}
+      {loading ? (
+        <div className="text-center py-12 text-slate-400 text-sm">Đang tải danh sách điểm danh...</div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+                <th className="p-3">Họ và tên</th>
+                <th className="p-3">Loại</th>
+                <th className="p-3 text-center">Trạng thái Điểm danh</th>
+                <th className="p-3 text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+              {attendances.map((item) => {
+                const name = item.memberName || item.guestName || ''
+                const isGuest = !!item.guestName
+                return (
+                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3 font-bold text-slate-900">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs">
+                          {name.slice(0, 1).toUpperCase()}
+                        </div>
+                        <span>{name}</span>
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      {isGuest ? (
+                        <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold text-[10px]">
+                          Khách vãng lai
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-[#3C50E0] font-semibold text-[10px]">
+                          Hội viên chính thức
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-3 text-center">
+                      <button
+                        onClick={() => handleToggle(item.id)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          item.isCheckedIn ? 'bg-[#3C50E0]' : 'bg-slate-300'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            item.isCheckedIn ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </td>
+                    <td className="p-3 text-right">
+                      {isGuest && (
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="text-red-500 hover:text-red-700 font-bold px-2 py-1 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Xóa khách"
+                        >
+                          🗑 Xóa
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }

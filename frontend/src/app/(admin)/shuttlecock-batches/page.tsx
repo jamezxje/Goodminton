@@ -1,110 +1,155 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import api from '@/lib/api'
-import { ShuttlecockBatch } from '@/lib/api/shuttlecocks'
+import { useEffect, useState } from 'react'
+import { shuttlecockApi, ShuttlecockBatch } from '@/lib/api/shuttlecocks'
 import { membersApi, Member } from '@/lib/api/members'
 
 export default function ShuttlecockBatchesPage() {
   const [batches, setBatches] = useState<ShuttlecockBatch[]>([])
   const [members, setMembers] = useState<Member[]>([])
   const [loading, setLoading] = useState(true)
-  const [openModal, setOpenModal] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [form, setForm] = useState({
-    purchasedByMemberId: '',
-    purchaseDate: new Date().toISOString().split('T')[0],
-    quantityPurchased: '12',
-    totalPrice: '',
-    brand: 'Thành Công',
-  })
+  const [showAdd, setShowAdd] = useState(false)
 
-  const loadData = useCallback(async () => {
+  const [purchasedByMemberId, setPurchasedByMemberId] = useState<number | ''>('')
+  const [quantityPurchased, setQuantityPurchased] = useState('12')
+  const [totalCost, setTotalCost] = useState('325000')
+  const [brand, setBrand] = useState('Thành Công')
+
+  function load() {
     setLoading(true)
-    try {
-      const [bList, mList] = await Promise.all([
-        api.get('/shuttlecock-batches').then((r) => r.data.data as ShuttlecockBatch[]),
-        membersApi.getAll(true),
-      ])
-      setBatches(bList)
-      setMembers(mList)
-    } catch {
-      setBatches([])
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+    Promise.all([
+      shuttlecockApi.getBatches().then(setBatches),
+      membersApi.getAll(true).then(setMembers),
+    ]).finally(() => setLoading(false))
+  }
 
   useEffect(() => {
-    loadData()
-  }, [loadData])
+    load()
+  }, [])
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
-    setSubmitting(true)
-    try {
-      await api.post('/shuttlecock-batches', {
-        purchasedByMemberId: Number(form.purchasedByMemberId),
-        purchaseDate: form.purchaseDate,
-        quantityPurchased: Number(form.quantityPurchased),
-        totalPrice: Number(form.totalPrice),
-        brand: form.brand.trim() || undefined,
-      })
-      setOpenModal(false)
-      setForm({
-        purchasedByMemberId: '',
-        purchaseDate: new Date().toISOString().split('T')[0],
-        quantityPurchased: '12',
-        totalPrice: '',
-        brand: 'Thành Công',
-      })
-      loadData()
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
-      alert(msg || 'Nhập kho cầu thất bại!')
-    } finally {
-      setSubmitting(false)
-    }
+    if (!purchasedByMemberId || !quantityPurchased || !totalCost) return
+    const q = Number(quantityPurchased)
+    const t = Number(totalCost)
+    await shuttlecockApi.createBatch({
+      purchasedByMemberId: Number(purchasedByMemberId),
+      purchaseDate: new Date().toISOString().split('T')[0],
+      quantityPurchased: q,
+      unitPrice: t / q,
+      brand,
+    })
+    setShowAdd(false)
+    load()
   }
 
   const totalRemaining = batches.reduce((sum, b) => sum + b.quantityRemaining, 0)
 
   return (
-    <div className="p-4 md:p-6 max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-7xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Quản lý Kho Cầu</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Tổng tồn kho: <b>{totalRemaining}</b> quả cầu</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Quản lý Kho Cầu</h1>
+          <p className="text-xs text-slate-500 mt-0.5">Theo dõi các tuýp cầu mua mới và số lượng tồn kho</p>
         </div>
         <button
-          onClick={() => setOpenModal(true)}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg transition-colors"
+          onClick={() => setShowAdd(true)}
+          className="inline-flex items-center gap-2 bg-[#3C50E0] hover:bg-[#3444B9] text-white px-4 py-2.5 rounded-xl font-medium text-xs shadow-md shadow-indigo-500/20 transition-all self-start sm:self-auto"
         >
-          + Nhập lô mới
+          <span>➕</span> Nhập lô cầu mới
         </button>
       </div>
 
+      {/* Overview Stat Card */}
+      <div className="nextadmin-card p-5 flex items-center justify-between bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-amber-200">
+        <div>
+          <div className="text-xs font-bold text-amber-800 uppercase tracking-wider">Tổng tồn kho hiện tại</div>
+          <div className="text-3xl font-extrabold text-amber-900 mt-1">{totalRemaining} quả cầu</div>
+          <div className="text-xs text-amber-700 mt-0.5 font-medium">Sẵn sàng phân bổ tự động theo FIFO</div>
+        </div>
+        <div className="w-14 h-14 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center text-2xl shadow-md">
+          🏸
+        </div>
+      </div>
+
+      {/* Batches Grid */}
+      {loading ? (
+        <div className="text-center py-16 text-slate-400 text-sm">Đang tải dữ liệu kho cầu...</div>
+      ) : batches.length === 0 ? (
+        <div className="text-center py-16 text-slate-400 text-sm bg-white rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <div className="text-4xl">📦</div>
+          <div className="font-semibold text-slate-700">Kho cầu hiện đang trống</div>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            Nhập lô cầu đầu tiên để bắt đầu tính năng tự động trừ kho và tính đơn giá cầu cho mỗi buổi tập.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {batches.map((b) => {
+            const percentRemaining = Math.round((b.quantityRemaining / b.quantityPurchased) * 100)
+            return (
+              <div key={b.id} className="nextadmin-card p-5 space-y-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="font-bold text-slate-900 text-base">Tuýp {b.brand || 'Cầu'}</div>
+                    <div className="text-xs text-slate-500 font-medium">Người mua: {b.purchasedByMemberName}</div>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-indigo-50 text-[#3C50E0] font-bold text-[11px]">
+                    Lô #{b.id}
+                  </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs font-semibold text-slate-700">
+                    <span>Số lượng tồn kho:</span>
+                    <span>
+                      {b.quantityRemaining} / {b.quantityPurchased} quả ({percentRemaining}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        percentRemaining > 30 ? 'bg-[#3C50E0]' : 'bg-amber-500'
+                      }`}
+                      style={{ width: `${percentRemaining}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-600">
+                  <div>
+                    📅 Mua: <span className="font-semibold">{new Date(b.purchaseDate).toLocaleDateString('vi-VN')}</span>
+                  </div>
+                  <div>
+                    Đơn giá: <span className="font-bold text-slate-900">{Math.round(b.unitPrice).toLocaleString('vi-VN')} đ/quả</span>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
       {/* Add Batch Modal */}
-      {openModal && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-bold text-gray-900">Nhập lô cầu mới</h2>
-              <button
-                onClick={() => setOpenModal(false)}
-                className="text-gray-400 hover:text-gray-600 text-xl font-bold"
-              >
+      {showAdd && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-200">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <h3 className="font-bold text-slate-900 text-base">Nhập lô cầu mới</h3>
+              <button onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-700 text-lg">
                 ✕
               </button>
             </div>
+
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Người đứng ra mua *</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Người đứng ra mua *</label>
                 <select
-                  value={form.purchasedByMemberId}
-                  onChange={(e) => setForm((f) => ({ ...f, purchasedByMemberId: e.target.value }))}
+                  value={purchasedByMemberId}
+                  onChange={(e) => setPurchasedByMemberId(Number(e.target.value))}
+                  className="w-full border border-slate-200 rounded-xl px-3.5 py-2 text-xs md:text-sm bg-white outline-none focus:border-[#3C50E0]"
                   required
-                  className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Chọn hội viên...</option>
                   {members.map((m) => (
@@ -115,116 +160,60 @@ export default function ShuttlecockBatchesPage() {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Ngày mua</label>
-                <input
-                  type="date"
-                  value={form.purchaseDate}
-                  onChange={(e) => setForm((f) => ({ ...f, purchaseDate: e.target.value }))}
-                  required
-                  className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Số quả mua *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Số quả mua *</label>
                   <input
                     type="number"
+                    value={quantityPurchased}
+                    onChange={(e) => setQuantityPurchased(e.target.value)}
+                    className="w-full border border-slate-200 rounded-xl px-3.5 py-2 text-xs md:text-sm outline-none focus:border-[#3C50E0]"
                     min="1"
-                    value={form.quantityPurchased}
-                    onChange={(e) => setForm((f) => ({ ...f, quantityPurchased: e.target.value }))}
                     required
-                    className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tổng tiền (đ) *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Tổng tiền (đ) *</label>
                   <input
                     type="number"
+                    value={totalCost}
+                    onChange={(e) => setTotalCost(e.target.value)}
+                    className="w-full border border-slate-200 rounded-xl px-3.5 py-2 text-xs md:text-sm outline-none focus:border-[#3C50E0]"
                     min="1000"
-                    value={form.totalPrice}
-                    onChange={(e) => setForm((f) => ({ ...f, totalPrice: e.target.value }))}
                     required
-                    placeholder="325000"
-                    className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Thương hiệu / Loại cầu</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Thương hiệu / Loại cầu</label>
                 <input
                   type="text"
-                  value={form.brand}
-                  onChange={(e) => setForm((f) => ({ ...f, brand: e.target.value }))}
-                  placeholder="Thành Công..."
-                  className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                  value={brand}
+                  onChange={(e) => setBrand(e.target.value)}
+                  placeholder="Thành Công, Yonex, Ba Sao..."
+                  className="w-full border border-slate-200 rounded-xl px-3.5 py-2 text-xs md:text-sm outline-none focus:border-[#3C50E0]"
                 />
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => setOpenModal(false)}
-                  className="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
+                  onClick={() => setShowAdd(false)}
+                  className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 text-xs font-medium hover:bg-slate-50"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting}
-                  className="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-[#3C50E0] hover:bg-[#3444B9] text-white rounded-xl text-xs font-bold shadow-sm"
                 >
-                  {submitting ? 'Đang lưu...' : 'Nhập kho'}
+                  Nhập kho
                 </button>
               </div>
             </form>
           </div>
-        </div>
-      )}
-
-      {/* Batches List */}
-      {loading ? (
-        <div className="text-center py-12 text-gray-400">Đang tải danh sách kho cầu...</div>
-      ) : batches.length === 0 ? (
-        <div className="text-center py-12 text-gray-400 bg-white rounded-xl border">Chưa có lô cầu nào trong kho</div>
-      ) : (
-        <div className="space-y-3">
-          {batches.map((b) => {
-            const isEmpty = b.quantityRemaining === 0
-            return (
-              <div
-                key={b.id}
-                className={`bg-white rounded-xl border p-4 transition-all ${
-                  isEmpty ? 'opacity-50 bg-gray-50' : 'hover:shadow-sm'
-                }`}
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-semibold text-gray-900">
-                      Tuýp cầu của {b.purchasedByMemberName}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      📅 Mua ngày {new Date(b.purchaseDate).toLocaleDateString('vi-VN')} · {b.brand || 'Thành Công'}
-                    </div>
-                    <div className="text-xs text-gray-400 mt-0.5">
-                      Đơn giá: {Number(b.unitPrice).toLocaleString('vi-VN')}đ/quả
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span
-                      className={`text-sm font-bold block ${
-                        isEmpty ? 'text-gray-400' : 'text-green-600'
-                      }`}
-                    >
-                      {isEmpty ? 'Đã dùng hết' : `Còn ${b.quantityRemaining} / ${b.quantityPurchased} quả`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
         </div>
       )}
     </div>

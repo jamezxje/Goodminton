@@ -50,92 +50,103 @@ export default function SettingsPage() {
     }
   }
 
-  if (loading) return <div className="text-center py-12 text-gray-400">Đang tải cài đặt...</div>
+  if (loading) {
+    return <div className="text-center py-16 text-slate-400 text-sm">Đang tải cài đặt CLB...</div>
+  }
 
   return (
-    <div className="p-4 md:p-6 max-w-lg mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Cài đặt CLB</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Thông tin tài khoản nhận tiền & QR Code</p>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Cài đặt CLB</h1>
+        <p className="text-xs text-slate-500 mt-0.5">Cấu hình tên CLB, tài khoản ngân hàng và mã QR thanh toán</p>
       </div>
 
-      <form onSubmit={handleSave} className="bg-white rounded-xl border p-6 space-y-4 shadow-sm">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tên CLB</label>
-          <input
-            type="text"
-            value={settings.club_name || ''}
-            onChange={(e) => setSettings((s) => ({ ...s, club_name: e.target.value }))}
-            placeholder="CLB Cầu lông Goodminton"
-            className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-          />
+      <form onSubmit={handleSave} className="nextadmin-card p-6 space-y-5">
+        <div className="border-b border-slate-100 pb-3">
+          <h3 className="font-bold text-slate-900 text-sm">Thông tin tài khoản nhận chuyển khoản</h3>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tên Ngân hàng</label>
-          <input
-            type="text"
-            value={settings.bank_name || ''}
-            onChange={(e) => setSettings((s) => ({ ...s, bank_name: e.target.value }))}
-            placeholder="MB Bank, Vietcombank..."
-            className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Tên CLB</label>
+            <input
+              type="text"
+              value={settings.club_name || ''}
+              onChange={(e) => setSettings((s) => ({ ...s, club_name: e.target.value }))}
+              placeholder="CLB Cầu lông Goodminton"
+              className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs md:text-sm outline-none focus:border-[#3C50E0]"
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Số tài khoản</label>
-          <input
-            type="text"
-            value={settings.account_number || ''}
-            onChange={(e) => setSettings((s) => ({ ...s, account_number: e.target.value }))}
-            placeholder="0357286401..."
-            className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tên chủ tài khoản</label>
-          <input
-            type="text"
-            value={settings.account_holder || ''}
-            onChange={(e) => setSettings((s) => ({ ...s, account_holder: e.target.value }))}
-            placeholder="NGUYEN VAN A"
-            className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="border-t pt-4 space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Ảnh QR Thanh toán</label>
-          {settings.qr_image_url && (
-            <div className="text-center p-2 border rounded-lg bg-gray-50">
-              <img
-                src={
-                  settings.qr_image_url.startsWith('/')
-                    ? `http://localhost:8080${settings.qr_image_url}`
-                    : settings.qr_image_url
-                }
-                alt="QR Code Preview"
-                className="w-40 h-40 mx-auto object-contain"
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Tên Ngân hàng</label>
+              <input
+                type="text"
+                value={settings.bank_name || ''}
+                onChange={(e) => setSettings((s) => ({ ...s, bank_name: e.target.value }))}
+                placeholder="MB Bank, Vietcombank..."
+                className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs md:text-sm outline-none focus:border-[#3C50E0]"
               />
             </div>
-          )}
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleQrUpload} />
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-            className="w-full py-2 border border-gray-300 text-gray-700 font-medium text-sm rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-          >
-            {uploading ? 'Đang upload ảnh...' : '📷 Upload / Thay ảnh QR'}
-          </button>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Số tài khoản</label>
+              <input
+                type="text"
+                value={settings.account_number || ''}
+                onChange={(e) => setSettings((s) => ({ ...s, account_number: e.target.value }))}
+                placeholder="0357286401..."
+                className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs md:text-sm outline-none focus:border-[#3C50E0]"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Tên chủ tài khoản</label>
+            <input
+              type="text"
+              value={settings.account_holder || ''}
+              onChange={(e) => setSettings((s) => ({ ...s, account_holder: e.target.value }))}
+              placeholder="NGUYEN VAN A"
+              className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs md:text-sm outline-none focus:border-[#3C50E0]"
+            />
+          </div>
+
+          <div className="pt-4 border-t border-slate-100 space-y-3">
+            <label className="block text-xs font-semibold text-slate-700">Mã QR Code Thanh toán</label>
+            {settings.qr_image_url && (
+              <div className="text-center p-4 border border-slate-200 rounded-2xl bg-slate-50">
+                <img
+                  src={
+                    settings.qr_image_url.startsWith('/')
+                      ? `http://localhost:8080${settings.qr_image_url}`
+                      : settings.qr_image_url
+                  }
+                  alt="QR Code Preview"
+                  className="w-48 h-48 mx-auto object-contain rounded-lg"
+                />
+              </div>
+            )}
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleQrUpload} />
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="w-full py-2.5 border border-slate-200 text-slate-700 font-semibold text-xs rounded-xl hover:bg-slate-50 transition-colors disabled:opacity-50"
+            >
+              {uploading ? 'Đang upload ảnh...' : '📷 Upload / Thay ảnh QR Thanh toán'}
+            </button>
+          </div>
         </div>
 
         <button
           type="submit"
           disabled={saving}
-          className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg transition-colors disabled:opacity-50"
+          className="w-full py-3 bg-[#3C50E0] hover:bg-[#3444B9] text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-500/20 transition-all disabled:opacity-50"
         >
-          {saving ? 'Đang lưu...' : 'Lưu cài đặt'}
+          {saving ? 'Đang lưu cài đặt...' : 'Lưu cài đặt'}
         </button>
       </form>
     </div>

@@ -30,6 +30,10 @@ export const shuttlecockApi = {
     api.post(`/sessions/${sessionId}/shuttlecock-usage/manual`, { usages }).then((r) => r.data.data as ShuttlecockUsage[]),
   reset: (sessionId: number) =>
     api.delete(`/sessions/${sessionId}/shuttlecock-usage`),
+  getBatches: () =>
+    api.get('/shuttlecock-batches').then((r) => r.data.data as ShuttlecockBatch[]),
   getAvailableBatches: () =>
     api.get('/shuttlecock-batches/available').then((r) => r.data.data as ShuttlecockBatch[]),
+  createBatch: (data: { purchasedByMemberId: number; purchaseDate: string; quantityPurchased: number; unitPrice: number; brand?: string }) =>
+    api.post('/shuttlecock-batches', data).then((r) => r.data.data as ShuttlecockBatch),
 }

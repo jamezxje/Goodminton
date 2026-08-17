@@ -1,19 +1,19 @@
 'use client'
 
-import React, { useEffect, useState, use } from 'react'
+import { useEffect, useState, use } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { sessionsApi, Session } from '@/lib/api/sessions'
 import SessionStatusBadge from '@/components/SessionStatusBadge'
 
 const tabs = [
-  { label: '👥 Điểm danh', href: 'attendance' },
-  { label: '💸 Chi tiêu', href: 'expenses' },
-  { label: '🏸 Cầu', href: 'shuttlecocks' },
-  { label: '🧾 Chia tiền', href: 'obligations' },
+  { href: '/attendance', label: '👥 Điểm danh' },
+  { href: '/expenses', label: '💸 Chi tiêu' },
+  { href: '/shuttlecocks', label: '🏸 Kho Cầu' },
+  { href: '/obligations', label: '🧾 Chia tiền' },
 ]
 
-export default function SessionLayout({
+export default function SessionDetailLayout({
   children,
   params,
 }: {
@@ -22,83 +22,94 @@ export default function SessionLayout({
 }) {
   const { id } = use(params)
   const pathname = usePathname()
+  const router = useRouter()
   const [session, setSession] = useState<Session | null>(null)
   const [closing, setClosing] = useState(false)
 
-  useEffect(() => {
+  function loadSession() {
     sessionsApi.getById(Number(id)).then(setSession).catch(() => setSession(null))
+  }
+
+  useEffect(() => {
+    loadSession()
   }, [id])
 
-  async function handleClose() {
-    if (!confirm('Chốt buổi sẽ tính toán nghĩa vụ đóng tiền. Bạn có chắc chắn muốn chốt buổi tập này?')) return
+  async function handleCloseSession() {
+    if (!confirm('Chốt buổi sẽ tính toán nghĩa vụ đóng tiền cho tất cả hội viên. Bạn có chắc chắn muốn chốt buổi tập này?')) {
+      return
+    }
     setClosing(true)
     try {
       await sessionsApi.close(Number(id))
-      const updated = await sessionsApi.getById(Number(id))
-      setSession(updated)
       alert('Đã chốt buổi tập thành công!')
+      loadSession()
+      router.push(`/sessions/${id}/obligations`)
     } catch {
-      alert('Chốt buổi tập thất bại!')
+      alert('Không thể chốt buổi tập!')
     } finally {
       setClosing(false)
     }
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
+    <div className="max-w-7xl mx-auto space-y-6">
+      {/* Session Top Header Card */}
       {session && (
-        <div className="px-4 py-3 bg-white border-b flex justify-between items-center">
-          <div>
-            <div className="font-bold text-gray-900">
-              {new Date(session.sessionDate).toLocaleDateString('vi-VN', {
-                weekday: 'long',
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-              })}
+        <div className="nextadmin-card p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Link href="/sessions" className="text-xs text-[#3C50E0] hover:underline font-semibold">
+                  ← Danh sách buổi tập
+                </Link>
+              </div>
+              <h1 className="text-xl md:text-2xl font-bold text-slate-900 mt-1">
+                Buổi tập ngày {new Date(session.sessionDate).toLocaleDateString('vi-VN')}
+              </h1>
+              <div className="text-xs text-slate-500 font-medium mt-0.5">
+                ⏰ Khung giờ: {session.startTime?.slice(0, 5)} – {session.endTime?.slice(0, 5)}
+              </div>
             </div>
-            <div className="text-xs text-gray-500 mt-0.5">
-              ⏰ {session.startTime?.slice(0, 5)} – {session.endTime?.slice(0, 5)}
+
+            <div className="flex items-center gap-3">
+              <SessionStatusBadge status={session.status} />
+              {session.status !== 'CLOSED' && (
+                <button
+                  onClick={handleCloseSession}
+                  disabled={closing}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-emerald-500/20 transition-all disabled:opacity-50"
+                >
+                  {closing ? 'Đang chốt...' : '🔒 Chốt buổi tập'}
+                </button>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <SessionStatusBadge status={session.status} />
-            {session.status !== 'CLOSED' && (
-              <button
-                onClick={handleClose}
-                disabled={closing}
-                className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
-              >
-                {closing ? 'Đang chốt...' : 'Chốt buổi'}
-              </button>
-            )}
+
+          {/* 4 Tabs Bar */}
+          <div className="flex border-b border-slate-200 overflow-x-auto gap-2 text-xs font-semibold">
+            {tabs.map((t) => {
+              const fullPath = `/sessions/${id}${t.href}`
+              const isActive = pathname === fullPath
+              return (
+                <Link
+                  key={t.href}
+                  href={fullPath}
+                  className={`pb-3 px-4 transition-all whitespace-nowrap border-b-2 ${
+                    isActive
+                      ? 'border-[#3C50E0] text-[#3C50E0] font-bold'
+                      : 'border-transparent text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  {t.label}
+                </Link>
+              )
+            })}
           </div>
         </div>
       )}
 
-      {/* Tab bar */}
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="flex overflow-x-auto">
-          {tabs.map((tab) => {
-            const href = `/sessions/${id}/${tab.href}`
-            const active = pathname === href
-            return (
-              <Link
-                key={tab.href}
-                href={href}
-                className={`flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
-                  active
-                    ? 'border-blue-600 text-blue-600 font-semibold'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                {tab.label}
-              </Link>
-            )
-          })}
-        </div>
-      </div>
-      <div className="p-4">{children}</div>
+      {/* Tab Content */}
+      <div>{children}</div>
     </div>
   )
 }

@@ -13,6 +13,10 @@ export function removeToken(): void {
   localStorage.removeItem(AUTH_TOKEN_KEY)
 }
 
+export function logout(): void {
+  removeToken()
+}
+
 export function isAuthenticated(): boolean {
   return !!getToken()
 }

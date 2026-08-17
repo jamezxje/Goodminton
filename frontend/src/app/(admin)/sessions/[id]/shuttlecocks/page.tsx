@@ -1,216 +1,199 @@
 'use client'
 
-import { useEffect, useState, use, useCallback } from 'react'
+import { useEffect, useState, use } from 'react'
 import { shuttlecockApi, ShuttlecockUsage, ShuttlecockBatch } from '@/lib/api/shuttlecocks'
 
-export default function ShuttlecocksPage({ params }: { params: Promise<{ id: string }> }) {
+export default function ShuttlecocksTab({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const sessionId = Number(id)
+
   const [usages, setUsages] = useState<ShuttlecockUsage[]>([])
   const [batches, setBatches] = useState<ShuttlecockBatch[]>([])
+  const [loading, setLoading] = useState(true)
+
   const [mode, setMode] = useState<'auto' | 'manual'>('auto')
   const [autoQty, setAutoQty] = useState('')
-  const [manualQtys, setManualQtys] = useState<Record<number, string>>({})
-  const [submitting, setSubmitting] = useState(false)
+  const [selectedBatchId, setSelectedBatchId] = useState<number | ''>('')
+  const [manualQty, setManualQty] = useState('')
 
-  const loadData = useCallback(async () => {
-    try {
-      const [uList, bList] = await Promise.all([
-        shuttlecockApi.getUsages(sessionId),
-        shuttlecockApi.getAvailableBatches(),
-      ])
-      setUsages(uList)
-      setBatches(bList)
-      const initialMap: Record<number, string> = {}
-      bList.forEach((b) => {
-        initialMap[b.id] = '0'
-      })
-      setManualQtys(initialMap)
-    } catch {
-      // ignore
-    }
-  }, [sessionId])
-
-  useEffect(() => {
-    loadData()
-  }, [loadData])
-
-  async function handleAutoSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!autoQty || Number(autoQty) <= 0) return
-    setSubmitting(true)
-    try {
-      const res = await shuttlecockApi.autoFifo(sessionId, Number(autoQty))
-      setUsages(res)
-      loadData()
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
-      alert(msg || 'Lỗi khi tính FIFO tự động!')
-    } finally {
-      setSubmitting(false)
-    }
+  function load() {
+    setLoading(true)
+    Promise.all([
+      shuttlecockApi.getUsages(sessionId).then(setUsages),
+      shuttlecockApi.getAvailableBatches().then(setBatches),
+    ]).finally(() => setLoading(false))
   }
 
-  async function handleManualSubmit(e: React.FormEvent) {
+  useEffect(() => {
+    load()
+  }, [sessionId])
+
+  async function handleAutoFifo(e: React.FormEvent) {
     e.preventDefault()
-    setSubmitting(true)
-    try {
-      const items = Object.entries(manualQtys)
-        .filter(([, qty]) => Number(qty) > 0)
-        .map(([bId, qty]) => ({ batchId: Number(bId), quantityUsed: Number(qty) }))
+    if (!autoQty || Number(autoQty) <= 0) return
+    await shuttlecockApi.autoFifo(sessionId, Number(autoQty))
+    setAutoQty('')
+    load()
+  }
 
-      if (items.length === 0) {
-        alert('Vui lòng nhập số quả sử dụng cho ít nhất 1 lô!')
-        setSubmitting(false)
-        return
-      }
-
-      const res = await shuttlecockApi.manual(sessionId, items)
-      setUsages(res)
-      loadData()
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
-      alert(msg || 'Phân bổ thủ công thất bại!')
-    } finally {
-      setSubmitting(false)
-    }
+  async function handleManualAdd(e: React.FormEvent) {
+    e.preventDefault()
+    if (!selectedBatchId || !manualQty || Number(manualQty) <= 0) return
+    await shuttlecockApi.manual(sessionId, [
+      {
+        batchId: Number(selectedBatchId),
+        quantityUsed: Number(manualQty),
+      },
+    ])
+    setManualQty('')
+    load()
   }
 
   async function handleReset() {
-    if (!confirm('Xóa phân bổ cầu cho buổi này?')) return
-    try {
-      await shuttlecockApi.reset(sessionId)
-      loadData()
-    } catch {
-      alert('Reset cầu thất bại!')
-    }
+    if (!confirm('Bạn có chắc muốn xóa tất cả phân bổ cầu trong buổi tập này?')) return
+    await shuttlecockApi.reset(sessionId)
+    load()
   }
 
-  const totalCost = usages.reduce((sum, u) => sum + Number(u.subtotal), 0)
   const totalUsed = usages.reduce((sum, u) => sum + u.quantityUsed, 0)
+  const totalCost = usages.reduce((sum, u) => sum + u.subtotal, 0)
 
   return (
-    <div className="space-y-4">
-      {/* Mode switcher */}
-      <div className="flex bg-gray-100 p-1 rounded-xl">
-        <button
-          onClick={() => setMode('auto')}
-          className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-            mode === 'auto' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-          }`}
-        >
-          ⚡ Chế độ nhanh (Auto FIFO)
-        </button>
-        <button
-          onClick={() => setMode('manual')}
-          className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-            mode === 'manual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-          }`}
-        >
-          🛠 Chế độ chi tiết (Chọn lô)
-        </button>
+    <div className="nextadmin-card p-5 space-y-6">
+      {/* Mode Switch Bar */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-amber-50/50 p-4 rounded-xl border border-amber-100">
+        <div>
+          <h3 className="font-bold text-slate-900 text-sm">Quản lý cầu sử dụng trong buổi tập</h3>
+          <p className="text-xs text-slate-500 mt-0.5">Trừ kho cầu tự động theo FIFO hoặc chọn lô thủ công</p>
+        </div>
+
+        <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm text-xs font-semibold">
+          <button
+            onClick={() => setMode('auto')}
+            className={`px-3 py-1.5 rounded-lg transition-colors ${
+              mode === 'auto' ? 'bg-[#3C50E0] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            ⚡ Auto FIFO
+          </button>
+          <button
+            onClick={() => setMode('manual')}
+            className={`px-3 py-1.5 rounded-lg transition-colors ${
+              mode === 'manual' ? 'bg-[#3C50E0] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            🛠 Chọn lô thủ công
+          </button>
+        </div>
       </div>
 
+      {/* Mode Form */}
       {mode === 'auto' ? (
-        <form onSubmit={handleAutoSubmit} className="bg-white rounded-xl p-4 border space-y-3 shadow-sm">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Tổng số quả sử dụng hôm nay</label>
+        <form onSubmit={handleAutoFifo} className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <h4 className="font-bold text-xs text-slate-800">Tự động trừ kho theo thứ tự Lô cũ nhất (Auto FIFO)</h4>
+          <div className="flex gap-2">
             <input
               type="number"
-              min="1"
               value={autoQty}
               onChange={(e) => setAutoQty(e.target.value)}
-              placeholder="Ví dụ: 10"
+              placeholder="Tổng số quả cầu đã dùng (ví dụ: 6)..."
+              className="flex-1 border border-slate-200 rounded-xl px-3.5 py-2 text-xs md:text-sm bg-white outline-none focus:border-[#3C50E0]"
+              min="1"
               required
-              className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
+            <button
+              type="submit"
+              className="bg-[#3C50E0] hover:bg-[#3444B9] text-white font-bold px-4 py-2 rounded-xl text-xs shadow-sm transition-all"
+            >
+              Tính phân bổ Auto FIFO
+            </button>
+          </div>
+        </form>
+      ) : (
+        <form onSubmit={handleManualAdd} className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <h4 className="font-bold text-xs text-slate-800">Thêm lượng cầu sử dụng từ một Lô cụ thể</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="sm:col-span-2">
+              <select
+                value={selectedBatchId}
+                onChange={(e) => setSelectedBatchId(Number(e.target.value))}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs bg-white outline-none focus:border-[#3C50E0]"
+                required
+              >
+                <option value="">Chọn lô cầu trong kho...</option>
+                {batches.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    Tuýp {b.brand} ({b.purchasedByMemberName}) — Còn {b.quantityRemaining}/{b.quantityPurchased} quả
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <input
+                type="number"
+                value={manualQty}
+                onChange={(e) => setManualQty(e.target.value)}
+                placeholder="Số quả dùng..."
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs bg-white outline-none focus:border-[#3C50E0]"
+                min="1"
+                required
+              />
+            </div>
           </div>
           <button
             type="submit"
-            disabled={submitting}
-            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg transition-colors disabled:opacity-50"
+            className="w-full bg-[#3C50E0] hover:bg-[#3444B9] text-white font-bold py-2 rounded-lg text-xs shadow-sm transition-colors"
           >
-            {submitting ? 'Đang tính FIFO...' : 'Tính phân bổ Auto FIFO'}
+            Lưu lượng cầu dùng
           </button>
-        </form>
-      ) : (
-        <form onSubmit={handleManualSubmit} className="space-y-3">
-          {batches.length === 0 ? (
-            <div className="text-center py-6 text-gray-400 bg-white rounded-xl border text-sm">
-              Kho hiện không còn lô cầu nào khả dụng
-            </div>
-          ) : (
-            batches.map((b) => (
-              <div key={b.id} className="bg-white rounded-xl p-3.5 border space-y-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-semibold text-sm text-gray-900">Tuýp của {b.purchasedByMemberName}</div>
-                    <div className="text-xs text-gray-500">
-                      📅 {new Date(b.purchaseDate).toLocaleDateString('vi-VN')} · Còn <b>{b.quantityRemaining}</b> quả
-                    </div>
-                  </div>
-                  <span className="text-xs font-semibold text-gray-700">
-                    {Number(b.unitPrice).toLocaleString('vi-VN')}đ/quả
-                  </span>
-                </div>
-                <input
-                  type="number"
-                  min="0"
-                  max={b.quantityRemaining}
-                  value={manualQtys[b.id] ?? '0'}
-                  onChange={(e) => setManualQtys((prev) => ({ ...prev, [b.id]: e.target.value }))}
-                  className="w-full border rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            ))
-          )}
-          {batches.length > 0 && (
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg transition-colors disabled:opacity-50"
-            >
-              {submitting ? 'Đang lưu...' : 'Lưu phân bổ thủ công'}
-            </button>
-          )}
         </form>
       )}
 
-      {/* Result usages list */}
-      <div className="space-y-2">
-        <div className="flex justify-between items-center px-1">
-          <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-            Chi tiết phân bổ ({totalUsed} quả):
-          </span>
+      {/* Allocation Details */}
+      <div className="space-y-3">
+        <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+          <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider">
+            Chi tiết phân bổ ({totalUsed} quả cầu)
+          </h4>
           {usages.length > 0 && (
-            <button onClick={handleReset} className="text-xs text-red-500 hover:underline">
-              Reset phân bổ
+            <button
+              onClick={handleReset}
+              className="text-xs text-red-600 hover:underline font-semibold"
+            >
+              🔄 Reset phân bổ
             </button>
           )}
         </div>
 
-        {usages.length === 0 ? (
-          <div className="text-center py-8 text-gray-400 bg-white rounded-xl border text-sm">
-            Chưa phân bổ cầu cho buổi này
+        {loading ? (
+          <div className="text-center py-8 text-slate-400 text-sm">Đang tải phân bổ cầu...</div>
+        ) : usages.length === 0 ? (
+          <div className="text-center py-8 text-slate-400 text-sm bg-slate-50 rounded-xl border border-dashed border-slate-200">
+            Chưa có phân bổ cầu nào cho buổi tập này
           </div>
         ) : (
-          usages.map((u) => (
-            <div key={u.id} className="bg-white rounded-xl border p-3.5 flex justify-between items-center">
-              <div>
-                <div className="font-semibold text-sm text-gray-900">Tuýp của {u.purchasedByMemberName}</div>
-                <div className="text-xs text-gray-500 mt-0.5">
-                  {u.quantityUsed} quả × {Number(u.unitPriceSnapshot).toLocaleString('vi-VN')}đ
+          <div className="space-y-2">
+            {usages.map((u) => (
+              <div
+                key={u.id}
+                className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs"
+              >
+                <div>
+                  <div className="font-bold text-slate-900">Tuýp cầu của {u.purchasedByMemberName}</div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">
+                    {u.quantityUsed} quả × {u.unitPriceSnapshot?.toLocaleString('vi-VN')} đ/quả
+                  </div>
+                </div>
+                <div className="text-right font-extrabold text-slate-900">
+                  {u.subtotal?.toLocaleString('vi-VN')} đ
                 </div>
               </div>
-              <span className="font-bold text-gray-900 text-sm">{Number(u.subtotal).toLocaleString('vi-VN')}đ</span>
-            </div>
-          ))
-        )}
+            ))}
 
-        {usages.length > 0 && (
-          <div className="bg-blue-50 p-3.5 rounded-xl border border-blue-100 flex justify-between items-center text-sm">
-            <span className="font-medium text-blue-900">Tổng tiền cầu:</span>
-            <span className="font-bold text-blue-900">{totalCost.toLocaleString('vi-VN')}đ</span>
+            <div className="flex justify-between items-center bg-amber-50 p-4 rounded-xl border border-amber-200 text-xs font-bold text-amber-900 mt-3">
+              <span>Tổng tiền cầu dùng:</span>
+              <span className="text-sm text-amber-700 font-extrabold">{totalCost.toLocaleString('vi-VN')} đ</span>
+            </div>
           </div>
         )}
       </div>
